@@ -31,7 +31,7 @@ export default class extends Controller {
 
   async enter () {
     try {
-      const constraints = { audio: false, video: true }
+      const constraints = { audio: true, video: true }
       this.stream = await navigator.mediaDevices.getUserMedia(constraints)
       this.localMediumTarget.srcObject = this.stream
 
