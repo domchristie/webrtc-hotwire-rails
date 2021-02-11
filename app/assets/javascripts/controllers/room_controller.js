@@ -101,6 +101,12 @@ export default class extends Controller {
     }
   }
 
+  removeClient ({ from }) {
+    if (this.clients[from]) {
+      delete this.clients[from]
+    }
+  }
+
   findOrCreateClient (id) {
     return this.clients[id] || (this.clients[id] = new Client(id))
   }

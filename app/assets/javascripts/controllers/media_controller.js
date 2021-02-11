@@ -9,6 +9,12 @@ export default class extends Controller {
     })
   }
 
+  disconnect() {
+    this.dispatch('disconnect', {
+      detail: { clientId: this.clientIdValue }
+    })
+  }
+
   dispatch (eventName, { target = this.element, detail = {}, bubbles = true, cancelable = true } = {}) {
     const type = `${this.identifier}:${eventName}`
     const event = new CustomEvent(type, { detail, bubbles, cancelable })
