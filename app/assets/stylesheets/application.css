@@ -13,3 +13,45 @@
  *= require_tree .
  *= require_self
  */
+
+html, body {
+  height: 100%
+ }
+
+ body {
+  margin: 0;
+ }
+
+.room,
+.media {
+  height: 100%;
+ }
+
+ .media {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
+  grid-template-rows: repeat(auto-fit, minmax(50%, 1fr));
+ }
+
+ .medium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.medium video {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+}
+
+ .medium--local video {
+  transform: scaleX(-1);
+ }
+
+ .medium-actions {
+   position: absolute;
+   top: 0;
+   left: 0;
+ }

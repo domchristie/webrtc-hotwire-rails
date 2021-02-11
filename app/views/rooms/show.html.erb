@@ -12,8 +12,9 @@
     <div class="medium medium--local">
       <video data-room-target="localMedium" muted autoplay playsinline></video>
 
+      <div class="medium-actions">
+        <%= button_tag 'Enter',  data: { room_target: 'enter', action: 'room#enter' } %>
+      </div>
     </div>
   </div>
-
-  <%= button_tag 'Enter', data: { action: 'room#enter' } %>
 </article>
