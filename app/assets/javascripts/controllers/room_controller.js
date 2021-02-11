@@ -6,7 +6,7 @@ import Signaller from 'webrtc_session_subscription'
 
 export default class extends Controller {
   static values = { id: String, clientId: String }
-  static targets = ['localMedium', 'remoteMedium']
+  static targets = ['localMedium', 'remoteMedium', 'enter']
 
   connect() {
     this.clients = {}
@@ -34,6 +34,7 @@ export default class extends Controller {
       const constraints = { audio: true, video: true }
       this.stream = await navigator.mediaDevices.getUserMedia(constraints)
       this.localMediumTarget.srcObject = this.stream
+      this.enterTarget.hidden = true
 
       this.subscription.start()
       this.signaller.start()
