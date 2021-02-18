@@ -4,10 +4,7 @@ import WebrtcNegotiation from 'webrtc_negotiation'
 import RoomSubscription from 'room_subscription'
 import Signaller from 'webrtc_session_subscription'
 
-export default class extends Controller {
-  static values = { id: String, clientId: String }
-  static targets = ['localMedium', 'remoteMedium', 'enter']
-
+export default class RoomController extends Controller {
   connect() {
     this.clients = {}
     this.client = new Client(this.clientIdValue)
@@ -123,3 +120,6 @@ export default class extends Controller {
     return this.clients[id].negotiation
   }
 }
+
+RoomController.values = { id: String, clientId: String }
+RoomController.targets = ['localMedium', 'remoteMedium', 'enter']
