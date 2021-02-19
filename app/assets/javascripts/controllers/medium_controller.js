@@ -2,12 +2,22 @@ import { Controller } from 'stimulus'
 
 export default class MediumController extends Controller {
   connect () {
+    this.reRenderMediaElement()
     this.dispatch('connect', {
       detail: { clientId: this.clientIdValue }
     })
   }
 
-  disconnect() {
+
+  // Fix potentially blank videos due to autoplay rules?
+  reRenderMediaElement () {
+    const mediaElement = this.mediaElementTarget
+    const clone = mediaElement.cloneNode(true)
+    mediaElement.parentNode.insertBefore(clone, mediaElement)
+    mediaElement.remove()
+  }
+
+  disconnect () {
     this.dispatch('disconnect', {
       detail: { clientId: this.clientIdValue }
     })
@@ -22,3 +32,4 @@ export default class MediumController extends Controller {
 }
 
 MediumController.values = { clientId: String }
+MediumController.targets = ['mediaElement']
