@@ -83,11 +83,9 @@ export default class RoomController extends Controller {
   }
 
   startStreamingFrom (id, { track, streams: [stream] }) {
-    track.onunmute = () => {
-      const remoteMediaElement = this.findRemoteMediaElement(id)
-      if (!remoteMediaElement.srcObject) {
-        remoteMediaElement.srcObject = stream
-      }
+    const remoteMediaElement = this.findRemoteMediaElement(id)
+    if (!remoteMediaElement.srcObject) {
+      remoteMediaElement.srcObject = stream
     }
   }
 
