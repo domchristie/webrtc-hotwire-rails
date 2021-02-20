@@ -29,8 +29,8 @@ export default class RoomController extends Controller {
   async enter () {
     try {
       const constraints = { audio: true, video: true }
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints)
-      this.localMediumTarget.srcObject = this.stream
+      this.client.stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.localMediumTarget.srcObject = this.client.stream
       this.enterTarget.hidden = true
 
       this.subscription.start()
@@ -78,13 +78,8 @@ export default class RoomController extends Controller {
     return negotiation
   }
 
-  startStreamingTo (client) {
-    if (!client.streaming) {
-      this.stream.getTracks().forEach(track => {
-        client.peerConnection.addTrack(track, this.stream)
-      })
-      client.streaming = true
-    }
+  startStreamingTo (otherClient) {
+    this.client.streamTo(otherClient)
   }
 
   startStreamingFrom (id, { track, streams: [stream] }) {
