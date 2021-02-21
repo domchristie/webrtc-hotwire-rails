@@ -23,12 +23,11 @@ To summarise the flow:
 7. Reacting to negotiation activity (SDP descriptions and ICE candidate exchanges), the newcomer starts streaming to other clients
 
 ## Browser Support?
-This has only been tested in macOS Firefox/Chrome. It currently won't work in Safari as it makes use of the latest WebRTC API: `RTCPeerConnection#setLocalDescription` / `RTCPeerConnection#setRemoteDescription` with optional descriptions.
+This has only been tested in macOS Firefox/Chrome/Safari and iOS Safari.
 
 ## TODO
 - Add "Leave" functionality + handle ICE candidate disconnections (rather than just closing the browser window)
-- Handle ICE Connection failures (see: [Explicit restartIce() method added]https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation#explicit_restartice_method_added))
-- Fallback to older WebRTC API when new API not supported (see: [Perfect negotiation with the old API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation#Perfect_negotiation_with_the_old_API))
+- Handle ICE Connection failures (see: [Explicit restartIce method added](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation#explicit_restartice_method_added))
 
 ## License
 Copyright © 2021+ Dom Christie and released under the MIT license.
