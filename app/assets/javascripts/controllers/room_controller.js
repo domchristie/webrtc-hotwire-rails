@@ -91,6 +91,7 @@ export default class RoomController extends Controller {
 
   removeClient ({ from }) {
     if (this.clients[from]) {
+      this.clients[from].stop()
       delete this.clients[from]
     }
   }

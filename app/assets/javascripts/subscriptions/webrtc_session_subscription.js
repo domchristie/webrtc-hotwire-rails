@@ -24,6 +24,11 @@ export default class WebrtcSessionSubscription {
         const negotiation = self.controller.negotiationFor(from)
         if (description) return negotiation.setDescription(description)
         if (candidate) return negotiation.addCandidate(candidate)
+        if (type === 'restart') {
+          negotiation.restart()
+          negotiation.createOffer()
+          return
+        }
       }
     })
 

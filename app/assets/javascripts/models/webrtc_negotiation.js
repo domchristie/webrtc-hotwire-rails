@@ -1,3 +1,5 @@
+const RETRY_LIMIT = 10
+
 export default class WebrtcNegotiation {
   constructor ({ client, otherClient, polite, signaller }) {
     this.client = client
@@ -7,11 +9,14 @@ export default class WebrtcNegotiation {
     this.makingOffer = false
     this.isSettingRemoteAnswerPending = false
     this.candidates = []
+    this.retryCount = 0
 
-    this.setupPeerConnection()
+    this.start()
   }
 
   async createOffer () {
+    if (!this.readyToMakeOffer) return
+
     try {
       this.makingOffer = true
       this.setLocalDescription(await this.peerConnection.createOffer())
@@ -26,13 +31,18 @@ export default class WebrtcNegotiation {
     try {
       if (this.ignore(description)) return
 
-      this.setRemoteDescription(description)
+      await this.setRemoteDescription(description)
 
       if (description.type === 'offer') {
-        this.setLocalDescription(await this.peerConnection.createAnswer())
+        await this.setLocalDescription(await this.peerConnection.createAnswer())
       }
     } catch (error) {
-      if (!this.ignore(description)) throw error
+      if (this.retryCount <= RETRY_LIMIT) {
+        this.initiateManualRollback()
+        this.retryCount++
+      } else {
+        console.error(`Negotiation failed after ${this.retryCount} retries`)
+      }
     }
   }
 
@@ -61,6 +71,7 @@ export default class WebrtcNegotiation {
     this.addCandidates()
   }
 
+  // TODO try/catch and ignore failures if necessary?
   addCandidates () {
     if (this.peerConnection.remoteDescription) {
       while (this.candidates.length) {
@@ -70,7 +81,11 @@ export default class WebrtcNegotiation {
     }
   }
 
-  get readyForOffer() {
+  get readyToMakeOffer () {
+    return !this.makingOffer && this.peerConnection.signalingState === 'stable'
+  }
+
+  get readyToReceiveOffer () {
     return (
       !this.makingOffer &&
       (
@@ -81,40 +96,73 @@ export default class WebrtcNegotiation {
   }
 
   collides (description) {
-    return description.type === 'offer' && !this.readyForOffer
+    return description.type === 'offer' && !this.readyToReceiveOffer
   }
 
   ignore (description) {
     return !this.polite && this.collides(description)
   }
 
+  initiateManualRollback() {
+    this.restart()
+    this.signaller.signal({
+      type: 'restart',
+      to: this.otherClient.id,
+      from: this.client.id
+    })
+  }
+
+  restart() {
+    this.stop()
+    this.start()
+  }
+
+  start () {
+    this.setupPeerConnection()
+  }
+
+  stop () {
+    this.makingOffer = false
+    this.isSettingRemoteAnswerPending = false
+    this.candidates = []
+    this.teardownPeerConnection()
+    this.otherClient.streaming = false
+  }
+
   setupPeerConnection () {
     this.peerConnection = new RTCPeerConnection()
 
-    this.peerConnection.addEventListener('negotiationneeded', () => {
-      this.createOffer()
-    })
+    this._onnegotiationneeded = () => this.createOffer()
 
-    this.peerConnection.addEventListener('icecandidate', ({ candidate }) => {
+    this._onicecandidate = ({ candidate }) => {
       this.signaller.signal({
         type: candidate ? 'candidate' : undefined,
         to: this.otherClient.id,
         from: this.client.id,
         candidate
       })
-    })
+    }
 
-    this.peerConnection.addEventListener('iceconnectionstatechange', () => {
-      if (this.peerConnection.iceConnectionState === 'disconnected') {
-        this.signaller.signal({
-          type: 'candidate:disconnected',
-          from: this.otherClient.id
-        })
+    this._onconnectionstatechange = (event) => {
+      if (this.peerConnection.connectionState === 'connected') {
+        this.retryCount = 0
       }
-    })
+    }
 
-    this.peerConnection.addEventListener('track', (event) => {
-      this.otherClient.broadcast('track', event)
-    })
+    this._ontrack = (event) => this.otherClient.broadcast('track', event)
+
+    this.peerConnection.addEventListener('negotiationneeded', this._onnegotiationneeded)
+    this.peerConnection.addEventListener('icecandidate', this._onicecandidate)
+    this.peerConnection.addEventListener('connectionstatechange', this._onconnectionstatechange)
+    this.peerConnection.addEventListener('track', this._ontrack)
+  }
+
+  teardownPeerConnection () {
+    this.peerConnection.close()
+    this.peerConnection.removeEventListener('negotiationneeded', this._onnegotiationneeded)
+    this.peerConnection.removeEventListener('icecandidate', this._onicecandidate)
+    this.peerConnection.removeEventListener('connectionstatechange', this._onconnectionstatechange)
+    this.peerConnection.removeEventListener('track', this._ontrack)
+    this.peerConnection = null
   }
 }
