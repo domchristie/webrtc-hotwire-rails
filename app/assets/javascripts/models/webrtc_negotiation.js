@@ -1,4 +1,15 @@
 const RETRY_LIMIT = 10
+const peerConnectionConfig = {
+  iceServers: [
+    {
+      urls: [
+        'stun:stun.l.google.com:19302',
+        'stun:global.stun.twilio.com:3478'
+      ]
+    }
+  ],
+  sdpSemantics: 'unified-plan'
+}
 
 export default class WebrtcNegotiation {
   constructor ({ client, otherClient, polite, signaller }) {
@@ -130,7 +141,7 @@ export default class WebrtcNegotiation {
   }
 
   setupPeerConnection () {
-    this.peerConnection = new RTCPeerConnection()
+    this.peerConnection = new RTCPeerConnection(peerConnectionConfig)
 
     this._onnegotiationneeded = () => this.createOffer()
 
