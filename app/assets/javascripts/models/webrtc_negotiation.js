@@ -85,7 +85,6 @@ export default class WebrtcNegotiation {
     if (this.peerConnection.remoteDescription) {
       while (this.candidates.length) {
         this.peerConnection.addIceCandidate(this.candidates.shift())
-        this.addCandidates()
       }
     }
   }
