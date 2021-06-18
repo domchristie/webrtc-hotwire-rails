@@ -48,7 +48,7 @@ export default class WebrtcNegotiation {
         await this.setLocalDescription(await this.peerConnection.createAnswer())
       }
     } catch (error) {
-      if (this.retryCount <= RETRY_LIMIT) {
+      if (this.retryCount < RETRY_LIMIT) {
         this.initiateManualRollback()
         this.retryCount++
       } else {
