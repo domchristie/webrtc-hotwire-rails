@@ -30,7 +30,7 @@ export default class WebrtcNegotiation {
 
     try {
       this.makingOffer = true
-      this.setLocalDescription(await this.peerConnection.createOffer())
+      await this.setLocalDescription(await this.peerConnection.createOffer())
     } catch (error) {
       console.error(error)
     } finally {
