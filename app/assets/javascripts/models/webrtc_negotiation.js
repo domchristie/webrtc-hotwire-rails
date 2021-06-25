@@ -148,8 +148,10 @@ export default class WebrtcNegotiation {
       })
     }
 
-    this._onconnectionstatechange = (event) => {
-      if (this.peerConnection.connectionState === 'connected') {
+    this._oniceconnectionstatechange = (event) => {
+      this.client.broadcast(`iceConnection:${this.peerConnection.iceConnectionState}`, { otherClient: this.otherClient })
+
+      if (this.peerConnection.iceConnectionState === 'connected') {
         this.retryCount = 0
       }
     }
@@ -158,7 +160,7 @@ export default class WebrtcNegotiation {
 
     this.peerConnection.addEventListener('negotiationneeded', this._onnegotiationneeded)
     this.peerConnection.addEventListener('icecandidate', this._onicecandidate)
-    this.peerConnection.addEventListener('connectionstatechange', this._onconnectionstatechange)
+    this.peerConnection.addEventListener('iceconnectionstatechange', this._oniceconnectionstatechange)
     this.peerConnection.addEventListener('track', this._ontrack)
   }
 
@@ -166,7 +168,7 @@ export default class WebrtcNegotiation {
     this.peerConnection.close()
     this.peerConnection.removeEventListener('negotiationneeded', this._onnegotiationneeded)
     this.peerConnection.removeEventListener('icecandidate', this._onicecandidate)
-    this.peerConnection.removeEventListener('connectionstatechange', this._onconnectionstatechange)
+    this.peerConnection.removeEventListener('iceconnectionstatechange', this._oniceconnectionstatechange)
     this.peerConnection.removeEventListener('track', this._ontrack)
     this.peerConnection = null
   }

@@ -21,8 +21,8 @@ export default class RoomController extends Controller {
       clientId: this.client.id
     })
 
-    this.signaller.on('description candidate', ({ detail: { from } }) => {
-      this.startStreamingTo(this.clients[from])
+    this.client.on('iceConnection:connected', ({ detail: { otherClient } }) => {
+      this.startStreamingTo(otherClient)
     })
   }
 
