@@ -151,7 +151,7 @@ export default class WebrtcNegotiation {
     this._oniceconnectionstatechange = (event) => {
       this.client.broadcast(`iceConnection:${this.peerConnection.iceConnectionState}`, { otherClient: this.otherClient })
 
-      if (this.peerConnection.iceConnectionState === 'connected') {
+      if (this.peerConnection.iceConnectionState === 'completed') {
         this.retryCount = 0
       }
     }
