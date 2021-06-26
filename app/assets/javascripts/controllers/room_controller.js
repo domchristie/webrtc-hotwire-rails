@@ -1,11 +1,17 @@
 import { Controller } from 'stimulus'
+import TargetObserver from 'target_observer'
 import Client from 'client'
 import WebrtcNegotiation from 'webrtc_negotiation'
 import RoomSubscription from 'room_subscription'
 import Signaller from 'webrtc_session_subscription'
 
 export default class RoomController extends Controller {
+  initialize () {
+    this.targetObserver = new TargetObserver(this.context, this.context)
+  }
   connect() {
+    this.targetObserver.start()
+
     this.clients = {}
     this.client = new Client(this.clientIdValue)
 
@@ -24,6 +30,10 @@ export default class RoomController extends Controller {
     this.client.on('iceConnection:checking', ({ detail: { otherClient } }) => {
       this.startStreamingTo(otherClient)
     })
+  }
+
+  disconnect () {
+    this.targetObserver.stop()
   }
 
   async enter () {
@@ -46,7 +56,17 @@ export default class RoomController extends Controller {
     this.subscription.greet({ to: otherClient.id, from: this.client.id })
   }
 
-  negotiateConnection ({ detail: { clientId } }) {
+  remoteMediumTargetConnected (element) {
+    const clientId = element.id.replace('medium_', '')
+    this.negotiateConnection(clientId)
+  }
+
+  remoteMediumTargetDisconnected (element) {
+    const clientId = element.id.replace('medium_', '')
+    this.teardownClient(clientId)
+  }
+
+  negotiateConnection (clientId) {
     const otherClient = this.findOrCreateClient(clientId)
 
     // Be polite to newcomers!
@@ -61,6 +81,11 @@ export default class RoomController extends Controller {
     } else {
       this.subscription.greet({ to: otherClient.id, from: this.client.id })
     }
+  }
+
+  teardownClient (clientId) {
+    this.clients[clientId].stop()
+    delete this.clients[clientId]
   }
 
   createNegotiation ({ otherClient, polite }) {
@@ -86,13 +111,6 @@ export default class RoomController extends Controller {
     const remoteMediaElement = this.findRemoteMediaElement(id)
     if (!remoteMediaElement.srcObject) {
       remoteMediaElement.srcObject = stream
-    }
-  }
-
-  removeClient ({ from }) {
-    if (this.clients[from]) {
-      this.clients[from].stop()
-      delete this.clients[from]
     }
   }
 

@@ -1,11 +1,14 @@
 {
   "imports": {
     "turbo": "<%= asset_path "turbo" %>",
+    "@stimulus/multimap": "https://cdn.skypack.dev/@stimulus/multimap",
+    "@stimulus/mutation-observers": "https://cdn.skypack.dev/@stimulus/mutation-observers",
     <%= importmap_list_with_stimulus_from(
       "app/assets/javascripts/models",
       "app/assets/javascripts/controllers",
       "app/assets/javascripts/subscriptions",
-      "app/assets/javascripts/libraries"
+      "app/assets/javascripts/libraries",
+      "app/assets/javascripts/patches"
     ) %>
   }
 }

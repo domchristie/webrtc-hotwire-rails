@@ -52,6 +52,7 @@ export default class WebrtcNegotiation {
         this.initiateManualRollback()
         this.retryCount++
       } else {
+        this.stop()
         console.error(`Negotiation failed after ${this.retryCount} retries`)
       }
     }
