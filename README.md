@@ -27,7 +27,6 @@ This has only been tested in macOS Firefox/Chrome/Safari and iOS Safari.
 
 ## TODO
 - Add "Leave" functionality + handle ICE candidate disconnections (rather than just closing the browser window)
-- Handle ICE Connection failures (see: [Explicit restartIce method added](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation#explicit_restartice_method_added))
 
 ## License
 Copyright © 2021+ Dom Christie and released under the MIT license.
