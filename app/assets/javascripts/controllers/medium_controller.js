@@ -14,5 +14,4 @@ export default class MediumController extends Controller {
   }
 }
 
-MediumController.values = { clientId: String }
 MediumController.targets = ['mediaElement']
