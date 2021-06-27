@@ -1,5 +1,4 @@
 import { Controller } from 'stimulus'
-import TargetObserver from 'target_observer'
 import Client from 'client'
 import WebrtcNegotiation from 'webrtc_negotiation'
 import RoomSubscription from 'room_subscription'
@@ -7,11 +6,11 @@ import Signaller from 'webrtc_session_subscription'
 
 export default class RoomController extends Controller {
   initialize () {
-    this.targetObserver = new TargetObserver(this.context, this.context)
+    // Temp. fix to mimic the upcoming API from https://github.com/hotwired/stimulus/pull/409
+    this.element[this.identifier] = this
   }
-  connect() {
-    this.targetObserver.start()
 
+  connect() {
     this.clients = {}
     this.client = new Client(this.clientIdValue)
 
@@ -30,10 +29,6 @@ export default class RoomController extends Controller {
     this.client.on('iceConnection:checking', ({ detail: { otherClient } }) => {
       this.startStreamingTo(otherClient)
     })
-  }
-
-  disconnect () {
-    this.targetObserver.stop()
   }
 
   async enter () {
