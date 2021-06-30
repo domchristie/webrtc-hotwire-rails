@@ -5,6 +5,7 @@ export default class MediumController extends Controller {
     this.reRenderMediaElement()
 
     // Temp. fix to mimic the upcoming API from https://github.com/hotwired/stimulus/pull/409
+    this.roomElement = this.element.closest('[data-controller="room"]')
     if (this.roomController && this.isRemote) {
        this.roomController.remoteMediumTargetConnected(this.element)
     }
@@ -18,11 +19,11 @@ export default class MediumController extends Controller {
   }
 
   get roomController () {
-    return this.element.closest('[data-controller="room"]').room
+    return this.roomElement.room
   }
 
   get isRemote () {
-    return this.element.matches(['data-room-target="remoteMedium"'])
+    return this.element.matches('[data-room-target="remoteMedium"]')
   }
 
   // Fix potentially blank videos due to autoplay rules?
