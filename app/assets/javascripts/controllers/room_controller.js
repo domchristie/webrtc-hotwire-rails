@@ -2,7 +2,7 @@ import { Controller } from 'stimulus'
 import Client from 'client'
 import WebrtcNegotiation from 'webrtc_negotiation'
 import RoomSubscription from 'room_subscription'
-import Signaller from 'webrtc_session_subscription'
+import Signaller from 'signaling_subscription'
 
 export default class RoomController extends Controller {
   initialize () {

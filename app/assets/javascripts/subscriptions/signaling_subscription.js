@@ -1,6 +1,6 @@
 import { cable } from 'turbo'
 
-export default class WebrtcSessionSubscription {
+export default class SignalingSubscription {
   constructor({ controller, id, clientId }) {
     this.callbacks = {}
     this.controller = controller
@@ -12,7 +12,7 @@ export default class WebrtcSessionSubscription {
     const self = this
 
     this.subscription = await cable.subscribeTo({
-      channel: 'WebrtcSessionChannel',
+      channel: 'SignalingChannel',
       id: this.id
     }, {
       received (data) {
