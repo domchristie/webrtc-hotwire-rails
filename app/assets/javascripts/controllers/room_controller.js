@@ -15,13 +15,13 @@ export default class RoomController extends Controller {
     this.client = new Client(this.clientIdValue)
 
     this.subscription = new RoomSubscription({
-      controller: this,
+      delegate: this,
       id: this.idValue,
       clientId: this.client.id
     })
 
     this.signaller = new Signaller({
-      controller: this,
+      delegate: this,
       id: this.idValue,
       clientId: this.client.id
     })
@@ -122,6 +122,28 @@ export default class RoomController extends Controller {
 
   negotiationFor (id) {
     return this.clients[id].negotiation
+  }
+
+  // RoomSubscription Delegate
+
+  roomPinged (data) {
+    this.greetNewClient(data)
+  }
+
+  // Signaler Delegate
+
+  sdpDescriptionReceived ({ from, description }) {
+    this.negotiationFor(from).setDescription(description)
+  }
+
+  iceCandidateReceived ({ from, candidate }) {
+    this.negotiationFor(from).addCandidate(candidate)
+  }
+
+  negotiationRestarted ({ from }) {
+    const negotiation = this.negotiationFor(from)
+    negotiation.restart()
+    negotiation.createOffer()
   }
 }
 

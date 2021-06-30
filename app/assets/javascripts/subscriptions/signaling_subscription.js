@@ -1,9 +1,9 @@
 import { cable } from 'turbo'
 
 export default class SignalingSubscription {
-  constructor({ controller, id, clientId }) {
+  constructor({ delegate, id, clientId }) {
     this.callbacks = {}
-    this.controller = controller
+    this.delegate = delegate
     this.id = id
     this.clientId = clientId
   }
@@ -21,14 +21,9 @@ export default class SignalingSubscription {
 
         self.broadcast(type, data)
 
-        const negotiation = self.controller.negotiationFor(from)
-        if (description) return negotiation.setDescription(description)
-        if (candidate) return negotiation.addCandidate(candidate)
-        if (type === 'restart') {
-          negotiation.restart()
-          negotiation.createOffer()
-          return
-        }
+        if (description) return self.delegate.sdpDescriptionReceived({ from, description })
+        if (candidate) return self.delegate.iceCandidateReceived({ from, candidate })
+        if (type === 'restart') return self.delegate.negotiationRestarted({ from })
       }
     })
 
