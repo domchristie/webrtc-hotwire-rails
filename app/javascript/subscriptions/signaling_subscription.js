@@ -1,4 +1,4 @@
-import { cable } from 'turbo'
+import { cable } from '@hotwired/turbo-rails'
 
 export default class SignalingSubscription {
   constructor({ delegate, id, clientId }) {

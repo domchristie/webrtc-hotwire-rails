@@ -7,11 +7,8 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag 'application', media: 'all' %>
-    <%= javascript_include_tag "libraries/adapter" %>
-    <%= stimulus_include_tags %>
+    <%= javascript_importmap_tags %>
     <%= yield :head %>
-    <%= javascript_include_tag "turbo", type: "module-shim" %>
-    <%= turbo_include_tags %>
   </head>
 
   <body>

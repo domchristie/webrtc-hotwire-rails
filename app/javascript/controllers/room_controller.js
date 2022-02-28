@@ -1,15 +1,10 @@
-import { Controller } from 'stimulus'
-import Client from 'client'
-import WebrtcNegotiation from 'webrtc_negotiation'
-import RoomSubscription from 'room_subscription'
-import Signaller from 'signaling_subscription'
+import { Controller } from '@hotwired/stimulus'
+import Client from 'models/client'
+import WebrtcNegotiation from 'models/webrtc_negotiation'
+import RoomSubscription from 'subscriptions/room_subscription'
+import Signaller from 'subscriptions/signaling_subscription'
 
 export default class RoomController extends Controller {
-  initialize () {
-    // Temp. fix to mimic the upcoming API from https://github.com/hotwired/stimulus/pull/409
-    this.element[this.identifier] = this
-  }
-
   connect() {
     this.clients = {}
     this.client = new Client(this.clientIdValue)

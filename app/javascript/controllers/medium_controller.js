@@ -1,21 +1,8 @@
-import { Controller } from 'stimulus'
+import { Controller } from '@hotwired/stimulus'
 
 export default class MediumController extends Controller {
   connect () {
     this.reRenderMediaElement()
-
-    // Temp. fix to mimic the upcoming API from https://github.com/hotwired/stimulus/pull/409
-    this.roomElement = this.element.closest('[data-controller="room"]')
-    if (this.roomController && this.isRemote) {
-       this.roomController.remoteMediumTargetConnected(this.element)
-    }
-  }
-
-  disconnect () {
-    // Temp. fix to mimic the upcoming API from https://github.com/hotwired/stimulus/pull/409
-    if (this.roomController && this.isRemote) {
-      this.roomController.remoteMediumTargetDisconnected(this.element)
-    }
   }
 
   get roomController () {
