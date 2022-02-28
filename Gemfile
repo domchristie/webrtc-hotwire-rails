@@ -20,6 +20,7 @@ gem 'redis', '~> 4.0'
 
 gem 'hotwire-rails'
 gem 'importmap-rails'
+gem 'turbo-rails'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
