@@ -243,6 +243,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   selenium-webdriver
   spring
+  stimulus-rails
   turbo-rails
   tzinfo-data
   web-console (>= 4.1.0)
