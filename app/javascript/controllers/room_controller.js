@@ -31,6 +31,7 @@ export default class RoomController extends Controller {
       const constraints = { audio: true, video: true }
       this.client.stream = await navigator.mediaDevices.getUserMedia(constraints)
       this.localMediumTarget.srcObject = this.client.stream
+      this.localMediumTarget.muted = true // Keep muted on Firefox
       this.enterTarget.hidden = true
 
       this.subscription.start()
