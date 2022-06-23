@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 import Client from 'models/client'
-import WebrtcNegotiation from 'models/webrtc_negotiation'
+import Peer from 'simple-peer'
 import RoomSubscription from 'subscriptions/room_subscription'
 import Signaller from 'subscriptions/signaling_subscription'
 
@@ -19,10 +19,6 @@ export default class RoomController extends Controller {
       delegate: this,
       id: this.idValue,
       clientId: this.client.id
-    })
-
-    this.client.on('iceConnection:checking', ({ detail: { otherClient } }) => {
-      this.startStreamingTo(otherClient)
     })
   }
 
@@ -60,49 +56,51 @@ export default class RoomController extends Controller {
   negotiateConnection (clientId) {
     const otherClient = this.findOrCreateClient(clientId)
 
-    // Be polite to newcomers!
-    const polite = !!otherClient.newcomer
+    otherClient.peer = this.createPeer({
+      otherClient,
+      initiator: !otherClient.newcomer
+    })
 
-    otherClient.negotiation = this.createNegotiation({ otherClient, polite })
-
-    // The polite client sets up the negotiation last, so we can start streaming
-    // The impolite client signals to the other client that it's ready
-    if (polite) {
-      this.startStreamingTo(otherClient)
-    } else {
+    if (!otherClient.newcomer) {
       this.subscription.greet({ to: otherClient.id, from: this.client.id })
     }
   }
 
   teardownClient (clientId) {
-    this.clients[clientId].stop()
+    this.peerFor(clientId).destroy()
     delete this.clients[clientId]
   }
 
-  createNegotiation ({ otherClient, polite }) {
-    const negotiation = new WebrtcNegotiation({
-      signaller: this.signaller,
-      client: this.client,
-      otherClient: otherClient,
-      polite
+  createPeer ({ otherClient, initiator }) {
+    const peer = new Peer({ initiator, stream: this.client.stream })
+
+    peer.on('signal', (message) => {
+      this.signaller.signal({
+        from: this.client.id,
+        to: otherClient.id, message
+      })
     })
 
-    otherClient.on('track', ({ detail }) => {
-      this.startStreamingFrom(otherClient.id, detail)
+    peer.on('stream', (stream) => {
+      this.startStreamingFrom(otherClient.id, stream)
     })
 
-    return negotiation
+    return peer
   }
 
   startStreamingTo (otherClient) {
     this.client.streamTo(otherClient)
   }
 
-  startStreamingFrom (id, { track, streams: [stream] }) {
+  startStreamingFrom (id, stream) {
     const remoteMediaElement = this.findRemoteMediaElement(id)
-    if (!remoteMediaElement.srcObject) {
+    if ('srcObject' in remoteMediaElement) {
       remoteMediaElement.srcObject = stream
+    } else {
+      // for older browsers
+      remoteMediaElement.src = window.URL.createObjectURL(stream)
     }
+    remoteMediaElement.play()
   }
 
   findOrCreateClient (id) {
@@ -116,8 +114,8 @@ export default class RoomController extends Controller {
     return target ? target.querySelector('video') : null
   }
 
-  negotiationFor (id) {
-    return this.clients[id].negotiation
+  peerFor (id) {
+    return this.clients[id].peer
   }
 
   // RoomSubscription Delegate
@@ -128,18 +126,8 @@ export default class RoomController extends Controller {
 
   // Signaler Delegate
 
-  sdpDescriptionReceived ({ from, description }) {
-    this.negotiationFor(from).setDescription(description)
-  }
-
-  iceCandidateReceived ({ from, candidate }) {
-    this.negotiationFor(from).addCandidate(candidate)
-  }
-
-  negotiationRestarted ({ from }) {
-    const negotiation = this.negotiationFor(from)
-    negotiation.restart()
-    negotiation.createOffer()
+  signalReceived ({ from, message }) {
+    return this.peerFor(from).signal(message)
   }
 }
 

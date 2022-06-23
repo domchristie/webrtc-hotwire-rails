@@ -19,9 +19,7 @@ export default class SignalingSubscription {
         const { to, from, type, description, candidate } = data
         if (to != self.clientId) return
 
-        if (description) return self.delegate.sdpDescriptionReceived({ from, description })
-        if (candidate) return self.delegate.iceCandidateReceived({ from, candidate })
-        if (type === 'restart') return self.delegate.negotiationRestarted({ from })
+        return self.delegate.signalReceived(data)
       }
     })
 
